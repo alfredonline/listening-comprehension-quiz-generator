@@ -1,0 +1,63 @@
+// prisma/schema.prisma
+datasource db {
+  provider  = "postgresql"
+  url  	    = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+    id String @id @default(cuid())
+    email String @unique
+    name String 
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt 
+    @@map("users")
+    quizzes Quiz[]
+}
+
+
+model Quiz {
+    id String @id @default(cuid())
+    userId String
+    user User @relation(fields: [userId], references: [id])
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    lastAttempted DateTime?
+    questions Question[]
+    attempts QuizAttempt[]
+    @@map("quizzes")
+}
+
+model Question {
+    id String @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    question String
+    answers Answer[]
+    quizId String
+    quiz Quiz @relation(fields: [quizId], references: [id])
+    @@map("questions")
+
+}
+
+model Answer {
+    id String @id @default(cuid())
+    text String
+    correct Boolean
+    questionId String
+    question Question @relation(fields: [questionId], references: [id])
+    @@map("answers")
+}
+
+model QuizAttempt {
+    id String @id @default(cuid())
+    score Int
+    percentage Float
+    createdAt DateTime @default(now())
+    quizId String
+    quiz Quiz @relation(fields: [quizId], references: [id])
+    @@map("quiz_attempts")
+}
